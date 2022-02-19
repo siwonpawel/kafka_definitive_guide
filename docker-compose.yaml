@@ -1,0 +1,93 @@
+services:
+#  producer1:
+#    container_name: producer-1
+#    image: producer
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#      - SPRING_DATASOURCE_USERNAME=postgres
+#      - SPRING_DATASOURCE_PASSWORD=password
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://producer-db-1:5432/postgres
+#      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+#      - SPRING_APPLICATION_NAME="Producer 1"
+#      - PRODUCER_KAFKA_ADDRESS=kafka:9092
+#      - PRODUCER_KAFKA_GROUP_ID=groupId
+#    ports:
+#      - "8101:8080"
+#    depends_on:
+#      - producer1Postgre
+#      - kafka
+  producer1Postgre:
+    container_name: producer-db-1
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "9101:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  #  consumer1:
+  #    container_name: consumer-1
+  #    image: consumer
+  #    environment:
+  #      - SPRING_PROFILES_ACTIVE=docker
+  #      - SPRING_DATASOURCE_USERNAME=postgres
+  #      - SPRING_DATASOURCE_PASSWORD=password
+  #      - SPRING_DATASOURCE_URL=jdbc:postgresql://consumer-db-1:5432/postgres
+  #      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+  #      - SPRING_APPLICATION_NAME="Consumer 1"
+  #      - CONSUMER_KAFKA_ADDRESS=kafka:9092
+  #      - CONSUMER_KAFKA_GROUP_ID=groupId
+  #    ports:
+  #      - "8111:8080"
+  #    depends_on:
+  #      - consumer1Postgre
+  #      - kafka
+  consumer1Postgre:
+    container_name: consumer-db-1
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "9111:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:3.7
+    ports:
+      - "2181:2181"
+    volumes:
+      - "zookeeper_data:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+  kafka:
+    hostname: kafka
+    container_name: kafka
+    image: docker.io/bitnami/kafka:3
+    ports:
+      - "9092:9092"
+    volumes:
+      - "kafka_data:/bitnami"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CREATE_TOPICS: "t-message:1:1" # topic:partition:replicas
+
+
+volumes:
+  zookeeper_data:
+    driver: local
+  kafka_data:
+    driver: local

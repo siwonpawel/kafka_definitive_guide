@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    username: postgres
+    password: password
+    url: jdbc:postgresql://localhost:9111/postgres
+
+  flyway:
+    create-schemas: true
+
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      client-id: consumer-1
+      group-id: c-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer

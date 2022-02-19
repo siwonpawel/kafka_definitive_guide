@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    username: postgres
+    password: password
+    url: jdbc:postgresql://localhost:9101/postgres
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    create-schemas: true
