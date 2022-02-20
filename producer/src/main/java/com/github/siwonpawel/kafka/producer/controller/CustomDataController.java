@@ -7,38 +7,36 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.github.siwonpawel.kafka.data.message.CustomData;
-import com.github.siwonpawel.kafka.data.message.MessageService;
+import com.github.siwonpawel.kafka.data.customdata.CustomData;
+import com.github.siwonpawel.kafka.data.customdata.CustomDataService;
 import com.github.siwonpawel.kafka.producer.kafka.KafkaService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/data")
+@RequiredArgsConstructor
 public class CustomDataController
 {
 
-    private final MessageService messageService;
+    private final CustomDataService customDataService;
     private final KafkaService kafkaService;
-
-    public CustomDataController(MessageService messageService, KafkaService kafkaService)
-    {
-        this.messageService = messageService;
-        this.kafkaService = kafkaService;
-    }
 
     @GetMapping
     public List<CustomData> getMessages(Pageable page)
     {
-        return messageService.getMessages(page).getContent();
+        return customDataService.getAll(page).getContent();
     }
 
     @PostMapping
     public CustomData produce(@RequestBody CustomData customData)
     {
-        var result = messageService.produce(customData);
-        kafkaService.publish(result.toString());
+        log.info("Produce data: " + customData.getContent());
+        var result = customDataService.save(customData);
+        kafkaService.publish(result.getContent());
 
         return result;
     }
