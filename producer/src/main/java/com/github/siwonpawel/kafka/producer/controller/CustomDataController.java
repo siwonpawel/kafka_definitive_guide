@@ -34,10 +34,11 @@ public class CustomDataController
     @PostMapping
     public CustomData produce(@RequestBody CustomData customData)
     {
-        log.info("Produce data: " + customData.getContent());
+        log.info("Sending data: " + customData.getContent());
         var result = customDataService.save(customData);
         kafkaService.publish(result.getContent());
 
+        log.info("Sent!");
         return result;
     }
 }

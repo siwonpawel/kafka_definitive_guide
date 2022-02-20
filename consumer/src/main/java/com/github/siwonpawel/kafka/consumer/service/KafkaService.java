@@ -24,6 +24,7 @@ public class KafkaService
         data.setContent(message);
 
         customDataService.save(data);
+        log.info("Saved!");
     }
 
 }
