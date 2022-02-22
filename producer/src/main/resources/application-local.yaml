@@ -6,6 +6,7 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   kafka:
+    implementation: native
     producer:
       bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
